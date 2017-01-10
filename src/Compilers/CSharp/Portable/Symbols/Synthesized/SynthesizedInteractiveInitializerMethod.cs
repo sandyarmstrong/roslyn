@@ -241,7 +241,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             out TypeSymbol resultType,
             out TypeSymbol returnType)
         {
-            var submissionReturnTypeOpt = compilation.ScriptCompilationInfo?.ReturnTypeOpt;
+            var submissionReturnType = compilation.ScriptCompilationInfo?.ReturnType ?? typeof(object);
             var taskT = compilation.GetWellKnownType(WellKnownType.System_Threading_Tasks_Task_T);
             var useSiteDiagnostic = taskT.GetUseSiteDiagnostic();
             if (useSiteDiagnostic != null)
@@ -252,9 +252,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // System.Object from the target corlib. This allows cross compiling scripts
             // to run on a target corlib that may differ from the host compiler's corlib.
             // cf. https://github.com/dotnet/roslyn/issues/8506
-            resultType = (object)submissionReturnTypeOpt == null
+            resultType = submissionReturnType == typeof(object)
                 ? compilation.GetSpecialType(SpecialType.System_Object)
-                : compilation.GetTypeByReflectionType(submissionReturnTypeOpt, diagnostics);
+                : compilation.GetTypeByReflectionType(submissionReturnType, diagnostics);
             returnType = taskT.Construct(resultType);
         }
     }
